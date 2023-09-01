@@ -2,13 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:panel_controller/store/store.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 export 'dio.dart';
 
 class DioApi {
   final Controller _controller = Get.find();
-  // static const String baseUrl = 'https://test-miniapp.wanrun.pro';
-  static const String baseUrl = 'http://192.168.1.94:9999';
+  static const String baseUrl = 'https://test-miniapp.wanrun.pro';
+  // static const String baseUrl = 'http://192.168.1.94:9999';
   late Dio _dio;
 
   DioApi() {
@@ -34,9 +35,9 @@ class DioApi {
         // 如果你想终止请求并触发一个错误，你可以使用 `handler.reject(error)`。
         // 初始化
         if (response.headers['wr-payload'] != null) {
-          _controller.token.value = response.headers['wr-payload']![0];
+          _controller.setToken(response.headers['wr-payload']![0]);
+          // _controller.token.value = response.headers['wr-payload']![0];
         }
-        // print(response.data.toString());
         return handler.next(response);
       },
       onError: (DioException e, ErrorInterceptorHandler handler) {
@@ -51,7 +52,7 @@ class DioApi {
 
   // get请求
   Future<dynamic> get(
-    BuildContext context,
+    // BuildContext context,
     String path, {
     Map<String, dynamic>? params,
   }) async {
@@ -63,23 +64,10 @@ class DioApi {
       );
       // print("$path ${params.toString()}");
     } on DioException catch (e) {
-      // e.printInfo();
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("提示"),
-              content: Text(e.response?.data?['msg'] ?? '请求异常'),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('确定'),
-                )
-              ],
-            );
-          });
+      Fluttertoast.showToast(
+          backgroundColor: Colors.white12,
+          msg: "连接异常",
+          gravity: ToastGravity.CENTER);
 
       return Future.error(e);
     }
@@ -89,7 +77,7 @@ class DioApi {
 
   // post请求
   Future<dynamic> post(
-    BuildContext context,
+    // BuildContext context,
     String path, {
     Map<String, dynamic>? data,
   }) async {
@@ -100,22 +88,26 @@ class DioApi {
         data: data,
       );
     } on DioException catch (e) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("提示"),
-              content: Text(e.response?.data?['msg'] ?? '请求异常'),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('确定'),
-                )
-              ],
-            );
-          });
+      Fluttertoast.showToast(
+          backgroundColor: Colors.white12,
+          msg: "连接异常",
+          gravity: ToastGravity.CENTER);
+      // showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       return AlertDialog(
+      //         title: const Text("提示"),
+      //         content: Text(e.response?.data?['msg'] ?? '连接异常'),
+      //         actions: [
+      //           ElevatedButton(
+      //             onPressed: () {
+      //               Navigator.of(context).pop();
+      //             },
+      //             child: const Text('确定'),
+      //           )
+      //         ],
+      //       );
+      //     });
 
       return Future.error(e);
     }

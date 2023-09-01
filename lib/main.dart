@@ -1,14 +1,15 @@
 import "package:flutter/material.dart";
-import 'package:panel_controller/pages/login/login.dart';
+import 'package:panel_controller/pages/home/home.dart';
 import 'package:flutter/services.dart';
 import 'package:panel_controller/store/store.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async {
   // 设置全屏
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   Get.put(Controller());
+
   runApp(const GetMaterialApp(home: MyApp()));
 }
 
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
       //   ),
       //   // useMaterial3: true,
       // ),
-      home: const Login(),
+      home: const Home(),
     );
   }
 }

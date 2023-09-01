@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:panel_controller/pages/home/components/my_button.dart';
 import '../../../api/api.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final List list;
+  final VoidCallback refresh;
+  const MyHomePage({super.key, required this.list, required this.refresh});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // int _counter = 0;
+  @override
+  void initState() {
+    super.initState();
+  }
 
-  // void _incrementCounter() {
-  //   setState(() {
-  //     _counter++;
-  //   });
+  void loadDeviceList() {
+    FetchData.productIotSpaceDevices({"spaceId": "1691638827033137153"})
+        .then((value) {
+      print(value);
+    }).catchError((e) {});
+  }
+
+  // @override
+  // void didUpdateWidget(covariant MyHomePage oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   print('哈哈 ${widget.list[1]}');
   // }
 
   @override
@@ -113,122 +126,167 @@ class _MyHomePageState extends State<MyHomePage> {
                   flex: 4,
                   child: Padding(
                     padding: const EdgeInsets.only(
-                        left: 8, bottom: 8, top: 8, right: 4),
+                        left: 8, bottom: 8, top: 0, right: 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.all(0),
-                                  backgroundColor:
-                                      Color.fromRGBO(31, 31, 31, 1),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                              // 事件
-                              onPressed: () {},
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 8,
-                                    ),
-                                    child: Image.asset(
-                                      "images/light.png",
-                                      width: 64,
-                                      height: 64,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "按键1",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  Opacity(
-                                    opacity: 0.7,
-                                    child: Container(
-                                      height: 20,
-                                      decoration: const BoxDecoration(
-                                        color: Color.fromRGBO(66, 66, 66, 1),
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(10.0),
-                                          bottomRight: Radius.circular(10.0),
+                        for (Map item in widget.list)
+                          // 按键1
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.all(0),
+                                      backgroundColor:
+                                          Color.fromRGBO(31, 31, 31, 1),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10))),
+                                  // 事件
+                                  onPressed: () {
+                                    var value =
+                                        item['props']?['status'] == 1 ? 0 : 1;
+
+                                    FetchData.productIotSpaceControlDevice({
+                                      'deviceId': item['id'],
+                                      'properties': [
+                                        {
+                                          'name': "status",
+                                          'value': value,
+                                        },
+                                      ],
+                                    }).then((res) {
+                                      widget.refresh();
+
+                                      Fluttertoast.showToast(
+                                          backgroundColor: Colors.black54,
+                                          msg: value == 0 ? '已开启' : '已关闭',
+                                          gravity: ToastGravity.CENTER);
+                                    }).catchError((e) {});
+                                  },
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          top: 8,
+                                        ),
+                                        child: Image.asset(
+                                          item['props']?['status'] == 1
+                                              ? "images/light.png"
+                                              : 'images/light-dark.png',
+                                          width: 64,
+                                          height: 64,
                                         ),
                                       ),
-                                      child: Center(
+                                      Text(
+                                        item['deviceName'],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: item['props']?['status'] == 1
+                                                ? const Color.fromRGBO(
+                                                    249, 242, 139, 1)
+                                                : Colors.white),
+                                      ),
+                                      Opacity(
+                                        opacity: 0.7,
                                         child: Container(
-                                          width: 2,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(4))),
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            color: item['props']?['status'] == 1
+                                                ? const Color.fromRGBO(
+                                                    66, 66, 66, 1)
+                                                : const Color.fromRGBO(
+                                                    66, 66, 66, 0.5),
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              bottomLeft: Radius.circular(10.0),
+                                              bottomRight:
+                                                  Radius.circular(10.0),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Container(
+                                              width: 2,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                  color: item['props']
+                                                              ?['status'] ==
+                                                          1
+                                                      ? Colors.green
+                                                      : Colors.black38,
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(4))),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        ),
-                        Expanded(
-                          child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.all(0),
-                                  backgroundColor:
-                                      Color.fromRGBO(31, 31, 31, 1),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10))),
-                              onPressed: () {},
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Image.asset(
-                                      "images/light.png",
-                                      width: 64,
-                                      height: 64,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "按键2",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                  Opacity(
-                                    opacity: 0.7,
-                                    child: Container(
-                                      height: 20,
-                                      decoration: const BoxDecoration(
-                                        color: Color.fromRGBO(66, 66, 66, 1),
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(10.0),
-                                          bottomRight: Radius.circular(10.0),
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Container(
-                                          width: 2,
-                                          height: 8,
-                                          decoration: const BoxDecoration(
-                                              color: Colors.green,
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(4))),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              )),
-                        ),
+                                      )
+                                    ],
+                                  )),
+                            ),
+                          ),
+                        // const SizedBox(
+                        //   height: 8,
+                        // ),
+                        // 按键2
+                        // Expanded(
+                        //   child: ElevatedButton(
+                        //       style: ElevatedButton.styleFrom(
+                        //           padding: EdgeInsets.all(0),
+                        //           backgroundColor:
+                        //               Color.fromRGBO(31, 31, 31, 1),
+                        //           shape: RoundedRectangleBorder(
+                        //               borderRadius: BorderRadius.circular(10))),
+                        //       onPressed: () {},
+                        //       child: Column(
+                        //         crossAxisAlignment: CrossAxisAlignment.stretch,
+                        //         mainAxisAlignment:
+                        //             MainAxisAlignment.spaceBetween,
+                        //         children: [
+                        //           Padding(
+                        //             padding: const EdgeInsets.only(top: 8),
+                        //             child: Image.asset(
+                        //               "images/light.png",
+                        //               width: 64,
+                        //               height: 64,
+                        //             ),
+                        //           ),
+                        //           const Text(
+                        //             '按键2',
+                        //             textAlign: TextAlign.center,
+                        //             style: TextStyle(color: Colors.white),
+                        //           ),
+                        //           Opacity(
+                        //             opacity: 0.7,
+                        //             child: Container(
+                        //               height: 20,
+                        //               decoration: const BoxDecoration(
+                        //                 color: Color.fromRGBO(66, 66, 66, 1),
+                        //                 borderRadius: BorderRadius.only(
+                        //                   bottomLeft: Radius.circular(10.0),
+                        //                   bottomRight: Radius.circular(10.0),
+                        //                 ),
+                        //               ),
+                        //               child: Center(
+                        //                 child: Container(
+                        //                   width: 2,
+                        //                   height: 8,
+                        //                   decoration: const BoxDecoration(
+                        //                       color: Colors.green,
+                        //                       borderRadius: BorderRadius.all(
+                        //                           Radius.circular(4))),
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //           )
+                        //         ],
+                        //       )),
+                        // ),
                       ],
                     ),
                   ),

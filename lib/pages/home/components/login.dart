@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_picker/flutter_picker.dart';
-import '../../api/api.dart';
+import '../../../api/api.dart';
 
 import 'package:get/get.dart';
 import 'package:panel_controller/store/store.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final VoidCallback loginOk;
+  const Login({super.key, required this.loginOk});
 
   @override
   State<Login> createState() => _Login();
@@ -49,21 +50,41 @@ class _Login extends State<Login> {
         floors.map((m) => m["name"]).toList(),
         rooms.map((m) => m["name"]).toList()
       ];
-      print(pickerData);
+      // print(pickerData);
       Picker(
-          adapter: PickerDataAdapter<String>(
-            pickerData: pickerData,
-            isArray: true,
-          ),
-          title: const Text('选择房间'),
-          changeToFirst: true,
-          hideHeader: false,
-          cancelText: '取消',
-          confirmText: '确认',
-          columnPadding: const EdgeInsets.all(8.0),
-          onConfirm: (Picker picker, List value) {
-            print(value);
-          }).showModal(context);
+        adapter: PickerDataAdapter<String>(
+          pickerData: pickerData,
+          isArray: true,
+        ),
+        height: 300,
+        itemExtent: 40,
+        title: const Text('选择房间'),
+        changeToFirst: true,
+        backgroundColor: Colors.black54,
+        containerColor: Colors.black26,
+        headerColor: Colors.black54,
+        textStyle: const TextStyle(color: Colors.white, fontSize: 16),
+        hideHeader: false,
+        cancelText: '取消',
+        confirmText: '确认',
+        onConfirm: (Picker picker, List value) {
+          print(value);
+        },
+        onSelect: (Picker picker, int index, List<int> selected) {
+          setState(() {
+            if (index == 0) {
+              floors = buildings[selected[0]]['children'];
+              rooms = floors[0]["children"];
+              // picker.adapter.setColumn(1);
+              // picker.adapter.setColumn(2);
+            } else if (index == 1) {
+              rooms = floors[selected[1]]["children"];
+            }
+            picker.adapter.initSelects();
+          });
+          // print("$picker - $index - $selected");
+        },
+      ).showModal(context);
     }
 
     // 登录方法
@@ -84,33 +105,33 @@ class _Login extends State<Login> {
         var digest = md5.convert(content);
         // 加密结果转换为16进制字符串
         String pwMd5 = digest.toString();
-        FetchData.authLogin(context, {
+        FetchData.authLogin({
           "userAccount": phone,
           "pwd": pwMd5,
           "platformId": 12,
         }).then((value) {
           // print(value);
           _controller.userInfo(value);
+          Fluttertoast.showToast(
+              backgroundColor: Colors.white12,
+              msg: "登录成功",
+              gravity: ToastGravity.CENTER);
+          // 通知兄弟组件
+          widget.loginOk();
 
-          FetchData.productSpaceTree(
-            context,
-          ).then((data) {
-            setState(() {
-              tree = data;
-              buildings = data;
-              floors = buildings[0]['children'];
-              rooms = floors[0]['children'];
-            });
-            // Fluttertoast.showToast(
-            //     backgroundColor: Colors.white12,
-            //     msg: "登录成功",
-            //     gravity: ToastGravity.CENTER);
+          // FetchData.productSpaceTree().then((data) {
+          //   setState(() {
+          //     tree = data;
+          //     buildings = data;
+          //     floors = buildings[0]['children'];
+          //     rooms = floors[0]['children'];
+          //   });
 
-            // print(data.toString());
-            showPicker(context);
-          }).catchError((e) {
-            print(e.toString());
-          });
+          //   // print(data.toString());
+          //   // showPicker(context);
+          // }).catchError((e) {
+          //   print(e.toString());
+          // });
         }).catchError((e) {});
       }
     }

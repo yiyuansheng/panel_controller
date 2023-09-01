@@ -12,12 +12,24 @@ class Controller extends GetxController {
   var count = 0.obs;
   increment() => count++;
 
+  // 保存token
+  setToken(value) {
+    token.value = value;
+    _prefs.setString("token", value);
+  }
+
   Controller() {
     // 初始化缓存器
-    SharedPreferences.getInstance().then((value) {
-      _prefs = value;
-    }).catchError((e) {
-      print(e);
-    });
+    init();
+    // SharedPreferences.getInstance().then((value) {
+    //   _prefs = value;
+    // }).catchError((e) {
+    //   print(e);
+    // });
+  }
+
+  init() async {
+    _prefs = await SharedPreferences.getInstance();
+    token.value = _prefs.getString("token") ?? '';
   }
 }
