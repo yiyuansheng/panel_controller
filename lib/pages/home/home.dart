@@ -15,17 +15,17 @@ class Home extends StatefulWidget {
 class _Home extends State<Home> {
   final PageController _pageController = PageController(initialPage: 1);
 
-  var deviceList = [
-    // {
-    //   'id': 0,
-    //   "deviceName": "",
-    //   "props": {"status": 0}
-    // },
-    // {
-    //   'id': 0,
-    //   "deviceName": "",
-    //   "props": {"status": 0}
-    // }
+  List<dynamic> deviceList = [
+    {
+      'id': 0,
+      "deviceName": "",
+      "props": {"status": 0}
+    },
+    {
+      'id': 0,
+      "deviceName": "",
+      "props": {"status": 0}
+    }
   ];
   var sceneList = [];
 
@@ -67,7 +67,12 @@ class _Home extends State<Home> {
       setState(() {
         sceneList = value.toList();
       });
-    }).catchError((e) => {});
+    }).catchError((e) {
+      Fluttertoast.showToast(
+          backgroundColor: Colors.white12,
+          msg: "请重新登录",
+          gravity: ToastGravity.CENTER);
+    });
   }
 
   @override

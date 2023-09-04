@@ -68,7 +68,7 @@ class _Scene extends State<Scene> {
                 children: [
                   Image.asset(
                     "images/highway.jpg",
-                    width: 190,
+                    width: 200,
                     fit: BoxFit.cover,
                   ),
                   Align(
@@ -112,7 +112,7 @@ class _Scene extends State<Scene> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
-                          childAspectRatio: 1.1,
+                          childAspectRatio: 1.05,
                           children: [
                             MyButton(
                                 onPressed: () {

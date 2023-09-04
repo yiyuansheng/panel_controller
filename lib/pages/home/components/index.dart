@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:panel_controller/pages/home/components/my_button.dart';
 import '../../../api/api.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:panel_controller/store/store.dart';
 import 'package:intl/intl.dart'; // 导入 intl 包
@@ -47,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     });
 
-    print(_currentTime.weekday);
+    // print(_currentTime.weekday);
   }
 
   // 执行场景
