@@ -1,28 +1,75 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:panel_controller/pages/home/components/my_button.dart';
 import '../../../api/api.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:panel_controller/store/store.dart';
+import 'package:intl/intl.dart'; // 导入 intl 包
 
 class MyHomePage extends StatefulWidget {
-  final List list;
+  final List deviceList;
+  final List sceneList;
   final VoidCallback refresh;
-  const MyHomePage({super.key, required this.list, required this.refresh});
+  const MyHomePage(
+      {super.key,
+      required this.deviceList,
+      required this.sceneList,
+      required this.refresh});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final Controller _controller = Get.find();
+
+  DateTime _currentTime = DateTime.now();
+  Timer? _timer;
+
+  var week = {
+    "1": "周一",
+    "2": "周二",
+    "3": "周三",
+    "4": "周四",
+    "5": "周五",
+    "6": "周六",
+    "7": "周日",
+  };
+
   @override
   void initState() {
     super.initState();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _currentTime = DateTime.now();
+      });
+    });
+
+    print(_currentTime.weekday);
   }
 
-  void loadDeviceList() {
-    FetchData.productIotSpaceDevices({"spaceId": "1691638827033137153"})
-        .then((value) {
-      print(value);
-    }).catchError((e) {});
+  // 执行场景
+  void doScene(String name) {
+    Map<String, dynamic>? result = widget.sceneList
+        .firstWhere((map) => map['name'] == name, orElse: () => null);
+    if (result != null) {
+      FetchData.productIotSpaceControlScene({"ruleId": result['id']})
+          .then((value) {
+        _controller.showToast("已执行$name");
+
+        widget.refresh();
+      }).catchError((e) {});
+    } else {
+      _controller.showToast("该模式未配置");
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer?.cancel(); // 取消定时器
   }
 
   // @override
@@ -33,6 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final dateFormat = DateFormat('yyyy年-MM月-dd日');
+
     return Scaffold(
       body: Container(
         child: Stack(
@@ -91,15 +140,37 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ],
                           ),
-                          const Text(
-                            "15:57",
+                          Text(
+                            '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}',
                             textAlign: TextAlign.right,
                             style: TextStyle(fontSize: 40, color: Colors.white),
                           ),
-                          const Text("8月16日 周三",
+                          Text(
+                              "${dateFormat.format(_currentTime)}  ${week[_currentTime.weekday.toString()]}",
                               textAlign: TextAlign.right,
-                              style: TextStyle(color: Colors.white))
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ))
                         ],
+                      ),
+                      // Obx：将整个部件树包裹在 Obx 中，当包裹的可观察变量发生变化时，整个 Obx 部件树将被重建。
+                      // GetBuilder：仅将特定部件包裹在 GetBuilder 中，当包裹的可观察变量发生变化时，只有 GetBuilder 包裹的部件会被重建，其他部件保持不变。
+                      Obx(
+                        () => Visibility(
+                            visible: _controller.visibleToast.value,
+                            child: Text(
+                              _controller.toast.value,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    offset: Offset(1, 1),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            )),
                       ),
                       Container(
                         decoration: const BoxDecoration(
@@ -130,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        for (Map item in widget.list)
+                        for (Map item in widget.deviceList)
                           // 按键1
                           Expanded(
                             child: Padding(
@@ -145,6 +216,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                               BorderRadius.circular(10))),
                                   // 事件
                                   onPressed: () {
+                                    if (item['id'] == 0) {
+                                      return;
+                                    }
                                     var value =
                                         item['props']?['status'] == 1 ? 0 : 1;
 
@@ -158,11 +232,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ],
                                     }).then((res) {
                                       widget.refresh();
-
-                                      Fluttertoast.showToast(
-                                          backgroundColor: Colors.black54,
-                                          msg: value == 0 ? '已开启' : '已关闭',
-                                          gravity: ToastGravity.CENTER);
+                                      _controller.showToast(
+                                          value == 0 ? '已开启' : '已关闭');
                                     }).catchError((e) {});
                                   },
                                   child: Column(
@@ -230,63 +301,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                   )),
                             ),
                           ),
-                        // const SizedBox(
-                        //   height: 8,
-                        // ),
-                        // 按键2
-                        // Expanded(
-                        //   child: ElevatedButton(
-                        //       style: ElevatedButton.styleFrom(
-                        //           padding: EdgeInsets.all(0),
-                        //           backgroundColor:
-                        //               Color.fromRGBO(31, 31, 31, 1),
-                        //           shape: RoundedRectangleBorder(
-                        //               borderRadius: BorderRadius.circular(10))),
-                        //       onPressed: () {},
-                        //       child: Column(
-                        //         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        //         mainAxisAlignment:
-                        //             MainAxisAlignment.spaceBetween,
-                        //         children: [
-                        //           Padding(
-                        //             padding: const EdgeInsets.only(top: 8),
-                        //             child: Image.asset(
-                        //               "images/light.png",
-                        //               width: 64,
-                        //               height: 64,
-                        //             ),
-                        //           ),
-                        //           const Text(
-                        //             '按键2',
-                        //             textAlign: TextAlign.center,
-                        //             style: TextStyle(color: Colors.white),
-                        //           ),
-                        //           Opacity(
-                        //             opacity: 0.7,
-                        //             child: Container(
-                        //               height: 20,
-                        //               decoration: const BoxDecoration(
-                        //                 color: Color.fromRGBO(66, 66, 66, 1),
-                        //                 borderRadius: BorderRadius.only(
-                        //                   bottomLeft: Radius.circular(10.0),
-                        //                   bottomRight: Radius.circular(10.0),
-                        //                 ),
-                        //               ),
-                        //               child: Center(
-                        //                 child: Container(
-                        //                   width: 2,
-                        //                   height: 8,
-                        //                   decoration: const BoxDecoration(
-                        //                       color: Colors.green,
-                        //                       borderRadius: BorderRadius.all(
-                        //                           Radius.circular(4))),
-                        //                 ),
-                        //               ),
-                        //             ),
-                        //           )
-                        //         ],
-                        //       )),
-                        // ),
                       ],
                     ),
                   ),
@@ -301,7 +315,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         Expanded(
                           child: MyButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                doScene('睡眠模式');
+                              },
                               name: "睡眠模式",
                               src: 'images/sleep.png'),
                         ),
@@ -310,7 +326,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           child: MyButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                doScene('起床模式');
+                              },
                               name: "起床模式",
                               src: 'images/sun.png'),
                         ),
@@ -319,7 +337,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           child: MyButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                doScene('电影模式');
+                              },
                               name: "电影模式",
                               src: 'images/movie.png'),
                         ),
@@ -328,7 +348,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Expanded(
                           child: MyButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                doScene('阅读模式');
+                              },
                               name: "阅读模式",
                               src: 'images/read.png'),
                         ),

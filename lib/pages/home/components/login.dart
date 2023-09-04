@@ -29,6 +29,8 @@ class _Login extends State<Login> {
   var selectedFloor = 0;
   var selectedRoom = 0;
 
+  final Controller _controller = Get.find();
+
   TextEditingController controller = TextEditingController();
   TextEditingController controller2 = TextEditingController();
 
@@ -42,8 +44,6 @@ class _Login extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    final Controller _controller = Get.find();
-
     void showPicker(BuildContext context) {
       var pickerData = [
         buildings.map((m) => m["name"]).toList(),

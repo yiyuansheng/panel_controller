@@ -1,4 +1,6 @@
 // import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +10,9 @@ class Controller extends GetxController {
   late SharedPreferences _prefs;
   var token = "".obs;
   var userInfo = {}.obs;
+  var toast = "".obs;
+  var visibleToast = false.obs;
+  Timer? timer;
 
   var count = 0.obs;
   increment() => count++;
@@ -18,14 +23,20 @@ class Controller extends GetxController {
     _prefs.setString("token", value);
   }
 
+  // 展示提示
+  showToast(msg) {
+    toast.value = msg;
+    visibleToast.value = true;
+    timer?.cancel();
+    timer = Timer(const Duration(seconds: 2), () {
+      visibleToast.value = false;
+      toast.value = "";
+    });
+  }
+
   Controller() {
     // 初始化缓存器
     init();
-    // SharedPreferences.getInstance().then((value) {
-    //   _prefs = value;
-    // }).catchError((e) {
-    //   print(e);
-    // });
   }
 
   init() async {

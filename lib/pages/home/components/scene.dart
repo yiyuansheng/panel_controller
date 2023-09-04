@@ -1,14 +1,57 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:panel_controller/pages/home/components/my_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import '../../../api/api.dart';
 
 class Scene extends StatefulWidget {
-  const Scene({super.key});
+  final List sceneList;
+  final VoidCallback refresh;
+  const Scene({super.key, required this.sceneList, required this.refresh});
 
   @override
   State<Scene> createState() => _Scene();
 }
 
 class _Scene extends State<Scene> {
+  var toast = "";
+  Timer? timer;
+  // 执行场景
+  void doScene(String name) {
+    Map<String, dynamic>? result = widget.sceneList
+        .firstWhere((map) => map['name'] == name, orElse: () => null);
+    if (result != null) {
+      FetchData.productIotSpaceControlScene({"ruleId": result['id']})
+          .then((value) {
+        showToast("已执行$name");
+
+        widget.refresh();
+      }).catchError((e) {});
+    } else {
+      showToast("该模式未配置");
+    }
+  }
+
+  void showToast(String msg) {
+    setState(() {
+      toast = msg;
+    });
+    timer?.cancel();
+    timer = Timer(const Duration(seconds: 2), () {
+      setState(() {
+        toast = '';
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     // var screenHeight = MediaQuery.of(context).size.height;
@@ -21,10 +64,32 @@ class _Scene extends State<Scene> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Image.asset(
-                "images/highway.jpg",
-                width: 190,
-                fit: BoxFit.cover,
+              Stack(
+                children: [
+                  Image.asset(
+                    "images/highway.jpg",
+                    width: 190,
+                    fit: BoxFit.cover,
+                  ),
+                  Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 190,
+                        child: Text(
+                          toast,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            shadows: [
+                              Shadow(
+                                color: Colors.black,
+                                offset: Offset(1, 1),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ))
+                ],
               ),
               Expanded(
                   child: Column(
@@ -47,39 +112,56 @@ class _Scene extends State<Scene> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
+                          childAspectRatio: 1.1,
                           children: [
                             MyButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  doScene('回家模式');
+                                },
+                                name: "回家模式",
+                                src: 'images/in-home.png'),
+                            MyButton(
+                                onPressed: () {
+                                  doScene('离家模式');
+                                },
+                                name: "离家模式",
+                                src: 'images/out-home.png'),
+                            MyButton(
+                                onPressed: () {
+                                  doScene('就餐模式');
+                                },
+                                name: "就餐模式",
+                                src: 'images/catering.png'),
+                            MyButton(
+                                onPressed: () {
+                                  doScene('娱乐模式');
+                                },
+                                name: "娱乐模式",
+                                src: 'images/play.png'),
+                            MyButton(
+                                onPressed: () {
+                                  doScene('睡眠模式');
+                                },
                                 name: "睡眠模式",
                                 src: 'images/sleep.png'),
                             MyButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  doScene('起床模式');
+                                },
                                 name: "起床模式",
                                 src: 'images/sun.png'),
                             MyButton(
-                                onPressed: () {},
-                                name: "睡眠模式",
-                                src: 'images/sleep.png'),
+                                onPressed: () {
+                                  doScene('阅读模式');
+                                },
+                                name: "阅读模式",
+                                src: 'images/read.png'),
                             MyButton(
-                                onPressed: () {},
-                                name: "起床模式",
-                                src: 'images/sun.png'),
-                            MyButton(
-                                onPressed: () {},
-                                name: "睡眠模式",
-                                src: 'images/sleep.png'),
-                            MyButton(
-                                onPressed: () {},
-                                name: "起床模式",
-                                src: 'images/sun.png'),
-                            MyButton(
-                                onPressed: () {},
-                                name: "睡眠模式",
-                                src: 'images/sleep.png'),
-                            MyButton(
-                                onPressed: () {},
-                                name: "起床模式",
-                                src: 'images/sun.png'),
+                                onPressed: () {
+                                  doScene('电影模式');
+                                },
+                                name: "电影模式",
+                                src: 'images/movie.png'),
                           ],
                         ),
                       ),
