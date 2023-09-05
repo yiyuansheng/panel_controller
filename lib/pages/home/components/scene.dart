@@ -64,111 +64,118 @@ class _Scene extends State<Scene> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Stack(
-                children: [
-                  Image.asset(
-                    "images/highway.jpg",
-                    width: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  Align(
-                      alignment: Alignment.center,
-                      child: Container(
-                        width: 190,
-                        child: Text(
-                          toast,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            shadows: [
-                              Shadow(
-                                color: Colors.black,
-                                offset: Offset(1, 1),
-                                blurRadius: 4,
-                              ),
-                            ],
+              Expanded(
+                  flex: 2,
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage("images/highway.jpg"),
+                            fit: BoxFit.fill,
                           ),
                         ),
-                      ))
-                ],
-              ),
-              Expanded(
-                  child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration:
-                          const BoxDecoration(color: Colors.black, boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 24,
-                          spreadRadius: 16,
-                          offset: Offset(-4, 0),
-                        )
-                      ]),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GridView.count(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 1.05,
-                          children: [
-                            MyButton(
-                                onPressed: () {
-                                  doScene('回家模式');
-                                },
-                                name: "回家模式",
-                                src: 'images/in-home.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('离家模式');
-                                },
-                                name: "离家模式",
-                                src: 'images/out-home.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('就餐模式');
-                                },
-                                name: "就餐模式",
-                                src: 'images/catering.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('娱乐模式');
-                                },
-                                name: "娱乐模式",
-                                src: 'images/play.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('睡眠模式');
-                                },
-                                name: "睡眠模式",
-                                src: 'images/sleep.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('起床模式');
-                                },
-                                name: "起床模式",
-                                src: 'images/sun.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('阅读模式');
-                                },
-                                name: "阅读模式",
-                                src: 'images/read.png'),
-                            MyButton(
-                                onPressed: () {
-                                  doScene('电影模式');
-                                },
-                                name: "电影模式",
-                                src: 'images/movie.png'),
-                          ],
-                        ),
                       ),
-                    ),
-                  )
-                ],
-              ))
+                      Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: 190,
+                            child: Text(
+                              toast,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    offset: Offset(1, 1),
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ))
+                    ],
+                  )),
+              Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                              color: Colors.black,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black,
+                                  blurRadius: 24,
+                                  spreadRadius: 16,
+                                  offset: Offset(-4, 0),
+                                )
+                              ]),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GridView.count(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                              childAspectRatio: 0.885,
+                              children: [
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('回家模式');
+                                    },
+                                    name: "回家模式",
+                                    src: 'images/in-home.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('离家模式');
+                                    },
+                                    name: "离家模式",
+                                    src: 'images/out-home.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('就餐模式');
+                                    },
+                                    name: "就餐模式",
+                                    src: 'images/catering.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('娱乐模式');
+                                    },
+                                    name: "娱乐模式",
+                                    src: 'images/play.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('睡眠模式');
+                                    },
+                                    name: "睡眠模式",
+                                    src: 'images/sleep.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('起床模式');
+                                    },
+                                    name: "起床模式",
+                                    src: 'images/sun.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('阅读模式');
+                                    },
+                                    name: "阅读模式",
+                                    src: 'images/read.png'),
+                                MyButton(
+                                    onPressed: () {
+                                      doScene('电影模式');
+                                    },
+                                    name: "电影模式",
+                                    src: 'images/movie.png'),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ))
             ],
           ),
         )

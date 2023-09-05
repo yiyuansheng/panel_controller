@@ -43,7 +43,7 @@ class _MyButton extends State<MyButton> {
             Text(
               widget.name,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ));

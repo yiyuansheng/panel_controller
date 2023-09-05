@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('yyyy年-MM月-dd日');
+    final dateFormat = DateFormat('yyyy年MM月dd日');
 
     return Scaffold(
       body: Container(
@@ -142,14 +142,17 @@ class _MyHomePageState extends State<MyHomePage> {
                           Text(
                             '${_currentTime.hour.toString().padLeft(2, '0')}:${_currentTime.minute.toString().padLeft(2, '0')}:${_currentTime.second.toString().padLeft(2, '0')}',
                             textAlign: TextAlign.right,
-                            style: TextStyle(fontSize: 40, color: Colors.white),
+                            style: const TextStyle(
+                              fontSize: 35,
+                              color: Colors.white,
+                            ),
                           ),
-                          Text(
-                              "${dateFormat.format(_currentTime)}  ${week[_currentTime.weekday.toString()]}",
+                          Text('${week[_currentTime.weekday.toString()]}'),
+                          Text("${dateFormat.format(_currentTime)} ",
                               textAlign: TextAlign.right,
                               style: const TextStyle(
                                 color: Colors.white,
-                              ))
+                              )),
                         ],
                       ),
                       // Obx：将整个部件树包裹在 Obx 中，当包裹的可观察变量发生变化时，整个 Obx 部件树将被重建。
@@ -177,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             BoxShadow(
                               color: Colors.black,
                               blurRadius: 24,
-                              spreadRadius: 16,
+                              spreadRadius: 20,
                               offset: Offset(0, 0),
                             ),
                           ],
@@ -185,7 +188,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: const Padding(
                           padding: EdgeInsets.all(8.0),
                           child: Text("室内 28℃ | 湿度35%",
-                              style: TextStyle(color: Colors.white)),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 13)),
                         ),
                       )
                     ],
